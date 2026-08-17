@@ -226,6 +226,24 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 #share-close{position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);right:20px;font-size:24px;color:var(--ink-2)}
 #share-link-line{margin-top:14px;font-size:12px;color:var(--ink-3);font-family:var(--caps);letter-spacing:.12em}
 
+/* ============ BIRTH CHART ============ */
+#page-chart-input,#page-chart-result{background:var(--night)}
+.chart-form{width:100%;max-width:440px;margin-top:26px;display:flex;flex-direction:column;gap:22px}
+.field label{display:block;font-family:var(--caps);font-size:11px;letter-spacing:.28em;color:var(--gold-deep);text-transform:uppercase;margin-bottom:8px}
+.field input{width:100%;background:transparent;border:none;border-bottom:1px solid var(--gold-deep);color:var(--ink-1);font-family:var(--serif);font-size:19px;padding:8px 2px;outline:none;color-scheme:dark;border-radius:0}
+.field input:focus{border-bottom-color:var(--gold)}
+.field input::placeholder{color:var(--ink-3)}
+.noon-note{font-size:12px;color:var(--gold-cream);background:var(--gold-wash);border-radius:4px;padding:8px 12px;line-height:1.6}
+.chart-svg-wrap{width:min(80vw,340px);margin:14px auto 4px}
+.big3{display:flex;flex-direction:column;gap:14px;width:100%;max-width:440px;margin-top:8px}
+.big3-card{background:rgba(14,12,10,.45);border:1px solid rgba(175,145,95,.35);border-radius:8px;padding:18px 20px;text-align:left}
+.big3-card .b3-head{display:flex;align-items:baseline;gap:10px}
+.big3-card .b3-glyph{font-size:20px;color:var(--gold)}
+.big3-card .b3-title{font-family:var(--caps);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-3)}
+.big3-card .b3-sign{font-family:var(--serif);font-size:20px;color:var(--gold-cream);margin-left:auto}
+.big3-card p{font-family:var(--serif);font-size:16.5px;line-height:1.6;color:var(--ink-1);margin-top:10px}
+.chart-note{font-size:11px;color:var(--ink-3);margin-top:22px;max-width:440px;line-height:1.7;text-align:center}
+
 @media (min-width:768px){
   .reading-wrap{max-width:640px}
   .reveal-card{width:240px}
@@ -252,6 +270,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
     <h1 class="home-title" id="home-title">The moon asks.<br><em>Will you listen?</em></h1>
     <div style="height:38px"></div>
     <button class="cta" id="btn-begin">✦&nbsp; <span data-i18n="begin">Begin Today's Rite</span></button>
+    <div class="textlink" id="btn-chart-link">☉ <span data-i18n="chartLink">Your Birth Chart →</span></div>
     <div class="divider">✦</div>
     <div class="echo" id="echo-box" style="visibility:hidden">
       <span data-i18n="yesterday">Yesterday you drew</span> <b id="echo-card"></b>
@@ -361,6 +380,51 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
       <div id="ask-answer"></div>
       <div class="disclaimer">For entertainment purposes only · 18+<br>Auracle does not provide medical, legal, or financial advice.</div>
     </div>
+  </section>
+  <!-- B8 · BIRTH CHART INPUT -->
+  <section class="page" id="page-chart-input">
+    <button class="back" data-back="page-home">←</button>
+    <div class="page-head">
+      <div class="eyebrow" data-i18n="chartEyebrow">Birth Chart</div>
+      <h2 data-i18n="chartQ">Where was the sky<br>when you arrived?</h2>
+    </div>
+    <div class="chart-form">
+      <div class="field">
+        <label data-i18n="fDate">Date of birth</label>
+        <input type="date" id="bd-date" max="2026-08-17">
+      </div>
+      <div class="field">
+        <label data-i18n="fTime">Time of birth (optional)</label>
+        <input type="time" id="bd-time">
+      </div>
+      <div class="noon-note" id="noon-note" style="display:none" data-i18n="noon">No birth time? Leave it empty — noon is used and your Rising stays approximate.</div>
+      <div class="field">
+        <label data-i18n="fPlace">Place of birth</label>
+        <input type="text" id="bd-place" list="city-list" placeholder="City" autocomplete="off">
+        <datalist id="city-list">
+          <option value="New York"></option><option value="Los Angeles"></option>
+          <option value="London"></option><option value="Paris"></option>
+          <option value="Berlin"></option><option value="Madrid"></option>
+          <option value="São Paulo"></option><option value="Mexico City"></option>
+          <option value="Tokyo"></option><option value="Seoul"></option>
+          <option value="Sydney"></option><option value="Toronto"></option>
+        </datalist>
+      </div>
+    </div>
+    <button class="cta" id="btn-compute-chart" style="margin-top:36px">✦ <span data-i18n="revealChart">Reveal My Chart</span></button>
+  </section>
+
+  <!-- B9 · BIRTH CHART RESULT -->
+  <section class="page" id="page-chart-result">
+    <button class="back" data-back="page-home">←</button>
+    <div class="page-head" style="text-align:center">
+      <div class="eyebrow" data-i18n="chartResult">Your Natal Sky</div>
+    </div>
+    <div class="chart-svg-wrap" id="chart-wheel"></div>
+    <div class="big3" id="big3"></div>
+    <div class="chart-note" data-i18n="chartNote">Prototype: simplified tropical model — production uses Swiss Ephemeris for arc-minute precision.</div>
+    <button class="cta" id="btn-chart-ask" style="margin-top:26px"><span data-i18n="askCards">Ask the cards about this chart</span> →</button>
+    <div style="height:30px"></div>
   </section>
 
 </main>
@@ -1181,6 +1245,176 @@ if (last){
   document.getElementById('echo-box').style.visibility = 'visible';
 }
 go('page-home');
+</script>
+
+<script>
+/* ---------- birth chart (P0-4) ---------- */
+Object.assign(I18N.en, {
+  chartLink:"Your Birth Chart →", chartEyebrow:"Birth Chart",
+  chartQ:"Where was the sky<br>when you arrived?",
+  fDate:"Date of birth", fTime:"Time of birth (optional)", fPlace:"Place of birth",
+  noon:"No birth time? Leave it empty — noon is used and your Rising stays approximate.",
+  revealChart:"Reveal My Chart", chartResult:"Your Natal Sky",
+  askCards:"Ask the cards about this chart",
+  chartNote:"Prototype: simplified tropical model — production uses Swiss Ephemeris for arc-minute precision.",
+  sunL:"Sun · Core Self", moonL:"Moon · Inner Weather", riseL:"Rising · First Light",
+  approx:"approx.", needDate:"Choose your birth date first ✦"
+});
+Object.assign(I18N.zh, {
+  chartLink:"你的本命盘 →", chartEyebrow:"本命盘",
+  chartQ:"你降临人世时<br>天空是什么模样？",
+  fDate:"出生日期", fTime:"出生时间（可选）", fPlace:"出生地点",
+  noon:"不知道出生时间？留空即可——将使用正午 12:00，上升星座为近似值。",
+  revealChart:"揭示我的星盘", chartResult:"你的本命星空",
+  askCards:"就这张星盘问问牌",
+  chartNote:"原型说明：本页使用简化回归黄道模型；正式版接入 Swiss Ephemeris，达角分级精度。",
+  sunL:"太阳 · 核心自我", moonL:"月亮 · 内在情绪", riseL:"上升 · 第一印象",
+  approx:"近似", needDate:"先选择你的出生日期 ✦"
+});
+applyI18n();
+
+const SIGNS = [
+  {en:"Aries",zh:"白羊座",gl:"♈"},{en:"Taurus",zh:"金牛座",gl:"♉"},
+  {en:"Gemini",zh:"双子座",gl:"♊"},{en:"Cancer",zh:"巨蟹座",gl:"♋"},
+  {en:"Leo",zh:"狮子座",gl:"♌"},{en:"Virgo",zh:"处女座",gl:"♍"},
+  {en:"Libra",zh:"天秤座",gl:"♎"},{en:"Scorpio",zh:"天蝎座",gl:"♏"},
+  {en:"Sagittarius",zh:"射手座",gl:"♐"},{en:"Capricorn",zh:"摩羯座",gl:"♑"},
+  {en:"Aquarius",zh:"水瓶座",gl:"♒"},{en:"Pisces",zh:"双鱼座",gl:"♓"}
+];
+const SUN_T = [
+ "You move first and understand later — courage is your default setting.",
+ "You build slowly and keep forever — loyalty with roots.",
+ "You think in dialogue — curiosity is your engine.",
+ "You remember everything you felt — care is your architecture.",
+ "You are warm on purpose — attention is a gift you give back.",
+ "You edit the world into something kinder — precision as devotion.",
+ "You weigh every side until it sings — harmony is your craft.",
+ "You feel in high fidelity — intensity is your honesty.",
+ "You aim further than the horizon — meaning is your fuel.",
+ "You climb with patience — time works for you.",
+ "You belong to the future first — difference is your method.",
+ "You dream with your eyes open — empathy is your native tongue."
+];
+const MOON_T = [
+ "Feelings arrive fast and burn clean — you need motion to process.",
+ "You calm down through the senses — good food, warm light, slow time.",
+ "You talk to understand your own heart — words are your weather vane.",
+ "Your moods have tides — home is wherever you can be soft.",
+ "You need to be seen to feel steady — appreciation is oxygen.",
+ "Order settles you — a made bed is a made mind.",
+ "Conflict costs you sleep — peace is a need, not a preference.",
+ "You trust slowly and completely — privacy is how you heal.",
+ "You feel best mid-journey — hope is your resting state.",
+ "You self-soothe through competence — doing is your calming.",
+ "You observe your feelings before you feel them — space is care.",
+ "You absorb every room you enter — solitude rinses you clean."
+];
+const RISE_T = [
+ "You arrive like a spark — people read you as decisive.",
+ "You arrive like a hearth — people read you as reliable.",
+ "You arrive like a question — people read you as quick.",
+ "You arrive like shelter — people read you as gentle.",
+ "You arrive like sunrise — people read you as radiant.",
+ "You arrive like a well-set table — people read you as capable.",
+ "You arrive like good lighting — people read you as graceful.",
+ "You arrive like depth — people read you as magnetic.",
+ "You arrive like a map — people read you as adventurous.",
+ "You arrive like a plan — people read you as serious.",
+ "You arrive like a signal from elsewhere — people read you as original.",
+ "You arrive like weather — people read you as dreamy."
+];
+
+function sunSignIdx(m, d){
+  const R = [[3,21,0],[4,20,1],[5,21,2],[6,21,3],[7,23,4],[8,23,5],[9,23,6],[10,23,7],[11,22,8],[12,22,9],[1,20,10],[2,19,11]];
+  let idx = 9; // Capricorn default: Dec 22 – Jan 19
+  for (const [mm, dd, si] of R){ if (m > mm || (m === mm && d >= dd)) idx = si; }
+  return idx;
+}
+function dayOfYear(dt){
+  return Math.floor((dt - new Date(dt.getFullYear(), 0, 0)) / 86400000);
+}
+function moonSignIdx(dt){
+  const lp = 2551443, nm = Date.UTC(1970, 0, 7, 20, 35) / 1000;
+  const ageDays = (((dt.getTime() / 1000 - nm) % lp) + lp) % lp / 86400;
+  const sunLong = (((dayOfYear(dt) - 80.25) * 0.9856) % 360 + 360) % 360;
+  return Math.floor(((sunLong + ageDays * 12.19) % 360) / 30);
+}
+function risingIdx(sunIdx, hour){
+  return (((sunIdx + Math.round((hour - 6) / 2)) % 12) + 12) % 12;
+}
+
+function wheelSVG(s, mo, r){
+  const C = 150, rot = 180 - (r * 30 + 15);
+  const pt = (a, rad) => { const t = a * Math.PI / 180; return [(C + rad * Math.cos(t)).toFixed(1), (C + rad * Math.sin(t)).toFixed(1)]; };
+  let out = `<circle cx="${C}" cy="${C}" r="140" stroke="#AF915F" fill="none" stroke-width="1.2"/>
+    <circle cx="${C}" cy="${C}" r="104" stroke="rgba(175,145,95,.5)" fill="none"/>`;
+  for (let k = 0; k < 12; k++){
+    const [x1, y1] = pt(rot + k * 30, 104), [x2, y2] = pt(rot + k * 30, 140);
+    out += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(175,145,95,.4)"/>`;
+    const [gx, gy] = pt(rot + k * 30 + 15, 122);
+    out += `<text x="${gx}" y="${gy}" font-size="13" fill="${k === s ? '#FCE1B6' : 'rgba(175,145,95,.85)'}" text-anchor="middle" dominant-baseline="central">${SIGNS[k].gl}</text>`;
+  }
+  [['☉', s, '#D69900', 80], ['☽', mo, '#FCE1B6', 60]].forEach(([sym, idx, col, rad]) => {
+    const [px, py] = pt(rot + idx * 30 + 15, rad);
+    out += `<circle cx="${px}" cy="${py}" r="3.4" fill="${col}"/>
+      <text x="${px}" y="${+py - 10}" font-size="12" fill="${col}" text-anchor="middle">${sym}</text>`;
+  });
+  const [ax, ay] = pt(180, 140);
+  out += `<path d="M${ax} ${ay} l -11 -6 v 12 z" fill="#D69900"/>
+    <text x="${ax - 34}" y="${+ay + 4}" font-size="9" fill="#D69900" letter-spacing="2" font-family="Marcellus,serif">ASC</text>`;
+  out += `<circle cx="${C}" cy="${C}" r="30" stroke="rgba(175,145,95,.6)" fill="none" stroke-dasharray="2 4"/>
+    <circle cx="${C}" cy="${C}" r="2.5" fill="#D69900"/>`;
+  return `<svg viewBox="0 0 300 300" style="width:100%;height:auto">${out}</svg>`;
+}
+
+document.getElementById('bd-time').addEventListener('input', e => {
+  document.getElementById('noon-note').style.display = e.target.value ? 'none' : 'block';
+});
+document.getElementById('btn-chart-link').addEventListener('click', () => {
+  AudioEngine.resume(); AudioEngine.tap();
+  go('page-chart-input');
+});
+document.getElementById('btn-chart-ask').addEventListener('click', () => go('page-spread'));
+
+document.getElementById('btn-compute-chart').addEventListener('click', () => {
+  const dStr = document.getElementById('bd-date').value;
+  if (!dStr){
+    const btn = document.getElementById('btn-compute-chart');
+    btn.querySelector('span').textContent = T('needDate');
+    setTimeout(() => btn.querySelector('span').textContent = T('revealChart'), 1600);
+    return;
+  }
+  AudioEngine.resume(); AudioEngine.whoosh();
+  const dt = new Date(dStr + 'T12:00:00');
+  const tStr = document.getElementById('bd-time').value;
+  const hour = tStr ? (+tStr.split(':')[0]) + (+tStr.split(':')[1]) / 60 : 12;
+  const approxTime = !tStr;
+  const s = sunSignIdx(dt.getMonth() + 1, dt.getDate());
+  const mo = moonSignIdx(dt);
+  const r = risingIdx(s, hour);
+  document.getElementById('chart-wheel').innerHTML = wheelSVG(s, mo, r);
+  const defs = [['sunL', s, SUN_T[s], '☉'], ['moonL', mo, MOON_T[mo], '☽'], ['riseL', r, RISE_T[r], '↑']];
+  document.getElementById('big3').innerHTML = defs.map(([k, i, txt, sym]) => `
+    <div class="big3-card"><div class="b3-head">
+      <span class="b3-glyph">${sym}</span><span class="b3-title">${T(k)}</span>
+      <span class="b3-sign">${SIGNS[i].gl} ${SIGNS[i].en}${LANG === 'zh' ? ' · ' + SIGNS[i].zh : ''}${k === 'riseL' && approxTime ? ' <small style="font-size:11px;color:var(--ink-3)">' + T('approx') + '</small>' : ''}</span>
+    </div><p>${txt}</p></div>`).join('');
+  try { localStorage.setItem('auracle-chart', JSON.stringify({ date: dStr, time: tStr, place: document.getElementById('bd-place').value })); } catch(e){}
+  go('page-chart-result');
+  setTimeout(() => AudioEngine.reveal(), 400);
+});
+
+/* restore saved chart */
+(() => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('auracle-chart') || 'null');
+    if (saved && saved.date){
+      document.getElementById('bd-date').value = saved.date;
+      document.getElementById('bd-time').value = saved.time || '';
+      document.getElementById('bd-place').value = saved.place || '';
+    }
+  } catch(e){}
+})();
 </script>
 </body>
 </html>
